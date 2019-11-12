@@ -11,9 +11,12 @@ export default new Router({
         {
             path: '/',
             name: 'home',
-            component: () => import('../components/HelloWorld.vue'),
+            component: () => import('../components/Home.vue'),
             meta: {name: 'Home', icon: 'info'}
         },
-        {path: '*', component: () => import('../components/NotFoundComponent.vue')}
+        {
+            path: '*',
+            redirect: '/',
+        },
     ],
 })
