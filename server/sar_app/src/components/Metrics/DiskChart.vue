@@ -4,7 +4,7 @@
     :height="height"
     class="graph"
   >
-    <h3 class="px-4 mb-4 font-weight-black">I/O</h3>
+    <h3 class="px-4 mb-4 font-weight-black">Disk</h3>
 
     <line-chart :chart-data="dataContents" :options="chartOptions"></line-chart>
 
@@ -12,14 +12,17 @@
     <v-btn grey class="ml-4 mb-4" @click="showExplain = !showExplain">Explain</v-btn>
 
     <ul class="px-10 py-3 grey darken-2" v-show="showLegend">
-      <li>tps：秒間I/Oリクエスト 数の合計</li>
-      <li>rtps：秒間読み込みIOリクエスト数の合計</li>
-      <li>wtps：秒間書き込みIOリクエスト数の合計</li>
-      <li>bread/s：秒間読み込み（ブロック単位）IOリクエストのデータ量の合計</li>
-      <li>bwrtn/s：秒間書き込み（ブロック単位）IOリクエストのデータ量の合計</li>
+      <li>tps：１秒間あたりのI/O転送回数</li>
+      <li>rd_sec/s：１秒間あたりに読み込みを行ったセクター数</li>
+      <li>wr_sec/s：１秒間あたりに書き込みを行ったセクター数</li>
+      <li>avgrq-sz：</li>
+      <li>avgqu-sz：</li>
+      <li>await：I/O応答時間の平均</li>
+      <li>svctm：</li>
+      <li>%util：ディスクの使用率（I/O処理をしていてビジーだった時間の割合）</li>
     </ul>
-
     <p class="pa-3 grey darken-2" v-show="showExplain">
+      <code>%util</code>の値が大きい場合はIOがボトルネックになっている可能性があります。また、<code>await</code>はアプリケーションのパフォーマンスに直接的に影響する値なので重要です。
     </p>
 
   </v-sheet>
@@ -30,7 +33,7 @@
   import 'chartjs-plugin-colorschemes'
 
   export default {
-    name: 'IoChart',
+    name: 'DiskChart',
     components: {
       "line-chart": LineChart,
     },
@@ -42,10 +45,10 @@
     }),
     props: ['options', 'stats', 'width', 'height', 'thinning', 'start', 'end'],
     created() {
-      this.debug('I/O Chart created.')
+      this.debug('Disk Chart created.')
     },
     mounted() {
-      this.debug('I/O Chart mounted.')
+      this.debug('Disk Chart mounted.')
     },
     methods: {
       initialize: function () {
@@ -92,7 +95,7 @@
                   display: true,
                   fontSize: this.options.font_size,
                   fontColor: this.options.font_color,
-                  labelString: "Count"
+                  labelString: "Size / Count"
                 }
               },
               {
@@ -109,7 +112,7 @@
                   display: true,
                   fontSize: this.options.font_size,
                   fontColor: this.options.font_color,
-                  labelString: "Data"
+                  labelString: "%"
                 }
               }
 
@@ -139,15 +142,18 @@
           },
         }
       },
-      fillData(label, tps, rtps, wtps, breadps, bwrtnps) {
+      fillData(label, tps, rd_sec, wr_sec, avgrq_sz, avgqu_sz, _await, svctm, util_precent) {
         this.dataContents = {
           labels: label,
           datasets: [
             {label: 'tps', data: tps, yAxisID: "y-axis-1"},
-            {label: 'rtps', data: rtps, yAxisID: "y-axis-1"},
-            {label: 'wtps', data: wtps, yAxisID: "y-axis-1"},
-            {label: 'bread/s', data: breadps, yAxisID: "y-axis-2"},
-            {label: 'bwrtn/s', data: bwrtnps , yAxisID: "y-axis-2"},
+            {label: 'rd_sec/s', data: rd_sec, yAxisID: "y-axis-1"},
+            {label: 'wr_sec/s', data: wr_sec, yAxisID: "y-axis-1"},
+            {label: 'avgrq-sz', data: avgrq_sz, yAxisID: "y-axis-1"},
+            {label: 'avgqu-sz', data: avgqu_sz , yAxisID: "y-axis-1"},
+            {label: 'await', data: _await , yAxisID: "y-axis-1"},
+            {label: 'svctm', data: svctm , yAxisID: "y-axis-1"},
+            {label: '%util', data: util_precent , yAxisID: "y-axis-2"},
           ]
         }
       },
@@ -157,7 +163,7 @@
       },
       assignStats(stats) {
         this.debug(stats)
-        let label = [], tps = [], rtps = [], wtps = [], breadps = [], bwrtnps = []
+        let label = [], tps = [], rd_sec = [], wr_sec = [], avgrq_sz = [], avgqu_sz  = [], _await  = [], svctm  = [], util_precent  = []
         let sample_count = stats.length
         let thinning_val = Math.floor(sample_count / this.thinning)
 
@@ -173,13 +179,16 @@
             continue
           }
           label.push(time_str)
-          tps.push(stats[i].io.tps)
-          rtps.push(stats[i].io['io-reads'].rtps)
-          wtps.push(stats[i].io['io-writes'].wtps)
-          breadps.push(stats[i].io['io-reads']['bread'])
-          bwrtnps.push(stats[i].io['io-writes']['bwrtn'])
+          tps.push(stats[i].disk[0].tps)
+          rd_sec.push(stats[i].disk[0].rd_sec)
+          wr_sec.push(stats[i].disk[0].wr_sec)
+          avgrq_sz.push(stats[i].disk[0]['avgrq-sz'])
+          avgqu_sz.push(stats[i].disk[0]['avgqu-sz'])
+          _await.push(stats[i].disk[0]['await'])
+          svctm.push(stats[i].disk[0].svctm)
+          util_precent.push(stats[i].disk[0]['util-precent'])
         }
-        this.fillData(label, tps, rtps, wtps, breadps, bwrtnps)
+        this.fillData(label, tps, rd_sec, wr_sec, avgrq_sz, avgqu_sz, _await, svctm, util_precent)
       },
     }
   }

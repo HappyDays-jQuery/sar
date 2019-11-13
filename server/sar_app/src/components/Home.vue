@@ -150,6 +150,18 @@
               :end="times[time_range[1]]"
               ref="io"
             />
+            <disk-chart
+              :key=5
+              class="item"
+              :options="config"
+              :stats="stats"
+              :width="width"
+              :height="height"
+              :thinning="thinning"
+              :start="times[time_range[0]]"
+              :end="times[time_range[1]]"
+              ref="disk"
+            />
           </draggable>
         </v-flex>
       </v-layout>
@@ -164,6 +176,7 @@
   import MemChart from "./Metrics/MemChart"
   import QueueChart from "./Metrics/QueueChart"
   import IoChart from "./Metrics/IoChart"
+  import DiskChart from "./Metrics/DiskChart"
 
   const FONT_COLOR = "rgba(244, 244, 244, 1)"
   const FONT_SIZE = 10
@@ -228,6 +241,7 @@
       'mem-chart': MemChart,
       'queue-chart': QueueChart,
       'io-chart': IoChart,
+      'disk-chart': DiskChart,
       'draggable': draggable,
     },
     props: {},
@@ -248,6 +262,7 @@
           this.$refs.mem.initialize()
           this.$refs.queue.initialize()
           this.$refs.io.initialize()
+          this.$refs.disk.initialize()
         }
       },
       open() {
