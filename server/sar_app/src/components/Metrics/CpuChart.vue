@@ -44,7 +44,7 @@
       showLegend: false,
       showExplain: false,
     }),
-    props: ['options', 'stats', 'width', 'height', 'thinning'],
+    props: ['options', 'stats', 'width', 'height', 'thinning', 'start', 'end'],
     created() {
       this.debug('Cpu Chart created.')
     },
@@ -145,11 +145,19 @@
         let label = [], user = [], nice = [], system = [], iowait = [], steal = [], idle = []
         let sample_count = stats.length
         let thinning_val = Math.floor(sample_count / this.thinning)
+
         for (let i = 0; i < stats.length; i++) {
-          if (i % thinning_val !== 0 && sample_count > this.thinning) {
+          let time_str = stats[i].timestamp.time.substr(0, 5)
+
+          if (i % thinning_val !== 0
+              && sample_count > this.thinning) {
             continue
           }
-          label.push(stats[i].timestamp.time.substr(0, 5))
+
+          if(!(this.start < time_str && this.end > time_str)){
+            continue
+          }
+          label.push(time_str)
           user.push(stats[i]['cpu-load-all'][0].user)
           nice.push(stats[i]['cpu-load-all'][0].nice)
           system.push(stats[i]['cpu-load-all'][0].system)

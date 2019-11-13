@@ -14,15 +14,14 @@
           </v-btn>
         </template>
 
-        <v-sheet class="text-center" height="500px">
+        <v-sheet class="text-center" height="600px">
           <v-btn
             class="mt-6"
             @click="sheet = !sheet"
           >close
           </v-btn>
 
-          <v-container fluid mt-12>
-
+          <v-container fluid>
             <v-layout row wrap pa-3>
               <v-flex xs2 pa-2>
                 <p>リソースデータ選択</p>
@@ -47,11 +46,11 @@
                 <p>描画領域サイズ</p>
               </v-flex>
               <v-flex xs5 pa-2>
-                <v-slider v-model="width" min="0" max="1500" label="Width" thumb-label v-on:change="initialize" />
+                <v-slider v-model="width" min="0" max="1500" label="Width" thumb-label v-on:change="initialize"/>
                 {{ width }}px
               </v-flex>
               <v-flex xs5 pa-2>
-                <v-slider v-model="height" min="0" max="1600" label="Height" thumb-label v-on:change="initialize" />
+                <v-slider v-model="height" min="0" max="1600" label="Height" thumb-label v-on:change="initialize"/>
                 {{ height }}px
               </v-flex>
             </v-layout>
@@ -61,8 +60,30 @@
                 <p>サンプル解像度</p>
               </v-flex>
               <v-flex xs5 pa-2>
-                <v-slider v-model="thinning" min="0" max="99" label="Thinning" thumb-label v-on:change="initialize" />
+                <v-slider v-model="thinning" min="0" max="99" label="Thinning" thumb-label v-on:change="initialize"/>
                 {{ thinning }}%
+              </v-flex>
+            </v-layout>
+
+            <v-layout row wrap pa-3>
+              <v-flex xs2 pa-2>
+                <p>時間帯</p>
+              </v-flex>
+              <v-flex xs5 pa-2>
+                <v-range-slider
+                  v-model="time_range"
+                  :value="time_range"
+                  min="0"
+                  max="24"
+                  label="Time Range"
+                  tick-size="5"
+                  v-on:change="initialize"
+                >
+                  <template v-slot:thumb-label="props">
+                    {{ times[props.value] }}
+                  </template>
+                </v-range-slider>
+                {{ times[time_range[0]]}} - {{times[time_range[1]]}}
               </v-flex>
             </v-layout>
           </v-container>
@@ -76,13 +97,42 @@
       <v-layout row wrap>
         <v-flex>
           <draggable :options="options">
-            <cpu-chart :key=1 class="item" :options="config" :stats="stats" :width="width" :height="height"
-                       :thinning="thinning" ref="cpu"/>
-            <mem-chart :key=2 class="item" :options="config" :stats="stats" :width="width" :height="height"
-                       :thinning="thinning" ref="mem"/>
-            <queue-chart :key=3 class="item" :options="config" :stats="stats" :width="width" :height="height"
-                         :thinning="thinning"
-                         ref="queue"/>
+            <cpu-chart
+              :key=1
+              class="item"
+              :options="config"
+              :stats="stats"
+              :width="width"
+              :height="height"
+              :thinning="thinning"
+              :start="times[time_range[0]]"
+              :end="times[time_range[1]]"
+              ref="cpu"
+            />
+            <mem-chart
+              :key=2
+              class="item"
+              :options="config"
+              :stats="stats"
+              :width="width"
+              :height="height"
+              :thinning="thinning"
+              :start="times[time_range[0]]"
+              :end="times[time_range[1]]"
+              ref="mem"
+            />
+            <queue-chart
+              :key=3
+              class="item"
+              :options="config"
+              :stats="stats"
+              :width="width"
+              :height="height"
+              :thinning="thinning"
+              :start="times[time_range[0]]"
+              :end="times[time_range[1]]"
+              ref="queue"
+            />
           </draggable>
         </v-flex>
       </v-layout>
@@ -114,6 +164,7 @@
       width: 200,
       height: 60,
       thinning: 50,
+      time_range: [0, 24],
       title: "Sar - Collect, report, or save system activity information.",
       stats: null,
       config: {
@@ -126,6 +177,33 @@
           zeroLineColor: "rgba(64, 64, 64, 1)"
         }
       },
+      times: [
+        '00:00',
+        '01:00',
+        '02:00',
+        '03:00',
+        '04:00',
+        '05:00',
+        '06:00',
+        '07:00',
+        '08:00',
+        '09:00',
+        '10:00',
+        '11:00',
+        '12:00',
+        '13:00',
+        '14:00',
+        '15:00',
+        '16:00',
+        '17:00',
+        '18:00',
+        '19:00',
+        '20:00',
+        '21:00',
+        '22:00',
+        '23:00',
+        '24:00',
+      ],
     }),
     components: {
       'cpu-chart': CpuChart,
@@ -145,12 +223,12 @@
 
     methods: {
       initialize: function () {
-        this.stats = this.json.sysstat.hosts[0].statistics
-        this.debug(this.stats)
-
-        this.$refs.cpu.initialize()
-        this.$refs.mem.initialize()
-        this.$refs.queue.initialize()
+        if (this.json !== null) {
+          this.stats = this.json.sysstat.hosts[0].statistics
+          this.$refs.cpu.initialize()
+          this.$refs.mem.initialize()
+          this.$refs.queue.initialize()
+        }
       },
       open() {
         const win = BrowserWindow.getFocusedWindow()
