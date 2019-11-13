@@ -5,7 +5,12 @@
       dark
       darken-2
     >
-      <v-toolbar-title>{{ title }}</v-toolbar-title>
+      <v-toolbar-title>
+        <v-icon>
+          mdi-chart-areaspline
+        </v-icon>
+        {{ title }}
+      </v-toolbar-title>
       <v-spacer></v-spacer>
       <v-bottom-sheet v-model="sheet">
         <template v-slot:activator="{ on }">
@@ -165,7 +170,7 @@
       height: 60,
       thinning: 50,
       time_range: [0, 24],
-      title: "Sar - Collect, report, or save system activity information.",
+      title: "Sar - Analyze Activity Information.",
       stats: null,
       config: {
         font_color: FONT_COLOR,
