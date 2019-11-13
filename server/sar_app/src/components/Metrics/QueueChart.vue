@@ -4,11 +4,11 @@
     :height="height"
     class="graph"
   >
-    <h3 class="px-4 font-weight-black">Queue</h3>
+    <h3 class="px-4 mb-4 font-weight-black">Queue</h3>
     <line-chart :chart-data="dataContents" :options="chartOptions"></line-chart>
 
-    <v-btn large grey class="ml-4 mb-4" @click="showLegend = !showLegend">Legend</v-btn>
-    <v-btn large grey class="ml-4 mb-4" @click="showExplain = !showExplain">Explain</v-btn>
+    <v-btn grey class="ml-4 mb-4" @click="showLegend = !showLegend">Legend</v-btn>
+    <v-btn grey class="ml-4 mb-4" @click="showExplain = !showExplain">Explain</v-btn>
 
     <ul class="px-10 py-3 grey darken-2" v-show="showLegend">
       <li>runq-sz：ランキューにあるタスク数</li>

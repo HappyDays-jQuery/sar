@@ -27,8 +27,18 @@
               <v-flex xs2 pa-2>
                 <p>リソースデータ選択</p>
               </v-flex>
-              <v-flex xs5 pa-2>
-
+              <v-flex xs3 pa-2>
+                <v-btn
+                  color="primary"
+                  @click="open"
+                  large
+                >
+                  <v-icon dark class="mr-1">
+                    mdi-file-upload
+                  </v-icon>
+                  選択
+                  <v-progress-circular slot="loading" indeterminate color="primary" dark></v-progress-circular>
+                </v-btn>
               </v-flex>
             </v-layout>
 
@@ -53,22 +63,21 @@
     <v-container fluid mt-12>
       <v-layout row wrap>
         <v-flex>
-          <cpu-chart :options="config" :stats="stats" :width="width" :height="height" ref="cpu"/>
-          <mem-chart :options="config" :stats="stats" :width="width" :height="height" ref="mem"/>
-          <queue-chart :options="config" :stats="stats" :width="width" :height="height" ref="queue"/>
+          <draggable :options="options">
+            <cpu-chart :key=1 class="item" :options="config" :stats="stats" :width="width" :height="height" ref="cpu"/>
+            <mem-chart :key=2 class="item" :options="config" :stats="stats" :width="width" :height="height" ref="mem"/>
+            <queue-chart :key=3 class="item" :options="config" :stats="stats" :width="width" :height="height"
+                         ref="queue"/>
+          </draggable>
         </v-flex>
       </v-layout>
 
     </v-container>
-
-
-    <v-footer dark app fixed>
-      <span class="white--text ml-3" v-html="footer"></span>
-    </v-footer>
   </div>
 </template>
 
 <script>
+  import draggable from 'vuedraggable'
   import CpuChart from "./Metrics/CpuChart"
   import MemChart from "./Metrics/MemChart"
   import QueueChart from "./Metrics/QueueChart"
@@ -76,18 +85,20 @@
   const FONT_COLOR = "rgba(244, 244, 244, 1)"
   const FONT_SIZE = 10
 
+  const {dialog, BrowserWindow} = require('electron').remote
+  const fs = require('fs')
+
   export default {
     data: () => ({
-      resources: [
-        "sa06.json",
-        "sa07.json",
-        "sa08.json"
-      ],
+      options: {
+        animation: 200
+      },
+      json: null,
+      index: 0,
       sheet: false,
-      width: 500,
-      height: 600,
+      width: 200,
+      height: 60,
       title: "Sar - Collect, report, or save system activity information.",
-      footer: "&copy; sar.",
       stats: null,
       config: {
         font_color: FONT_COLOR,
@@ -104,6 +115,7 @@
       'cpu-chart': CpuChart,
       'mem-chart': MemChart,
       'queue-chart': QueueChart,
+      'draggable': draggable,
     },
     props: {},
 
@@ -117,12 +129,63 @@
 
     methods: {
       initialize: function () {
-        //this.stats = json.sysstat.hosts[0].statistics
+        this.stats = this.json.sysstat.hosts[0].statistics
+        this.debug(this.stats)
+
         this.$refs.cpu.initialize()
         this.$refs.mem.initialize()
         this.$refs.queue.initialize()
       },
+      open() {
+        const win = BrowserWindow.getFocusedWindow()
+        dialog.showOpenDialog(
+            win,
+            {
+              properties: ['openFile'],
+              filters: [
+                {
+                  name: 'Document',
+                  extensions: ['json']
+                }
+              ]
+            },
+            (fileNames) => {
+              if (fileNames) {
+                this.read(fileNames[0])
+              }
+            }
+        )
+      },
+      read(path) {
+        fs.readFile(path, (error, data) => {
+          if (error != null) {
+            alert("file open error.");
+            return;
+          }
+          this.json = JSON.parse(data.toString());
+          this.height = 540
+          this.width = 500
+          this.initialize()
+        })
+      }
     },
 
   }
 </script>
+
+<style scoped>
+  .item {
+    display: inline-block;
+    border: 3px solid #404040;
+    border-radius: 10px;
+    background-color: #333333;
+  }
+
+  .item:hover {
+    cursor: grab;
+  }
+
+  .item:active {
+    cursor: grabbing;
+  }
+</style>
