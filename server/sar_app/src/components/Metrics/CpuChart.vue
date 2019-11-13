@@ -4,26 +4,29 @@
     :height="height"
     class="graph"
   >
-      <h3>CPU</h3>
+    <h3 class="px-4 font-weight-black">CPU</h3>
 
-      <line-chart :chart-data="dataContents" :options="chartOptions"></line-chart>
+    <line-chart :chart-data="dataContents" :options="chartOptions"></line-chart>
 
-      <ul>
-        <li>%user：CPUがユーザモードにあった時間の割合</li>
-        <li>%nice：優先度（nice値）設定されたユーザプロセス実行によるCPU時間の割合</li>
-        <li>%system：CPUがカーネルモードにあった時間の割合</li>
-        <li>%iowait：CPUがIO待ちをしていた時間の割合</li>
-        <li>%steal：ゲストOSがCPU割り当て待ちとなった時間の割合</li>
-        <li>%idle：CPUがアイドル状態にあった時間の割合</li>
-      </ul>
+    <v-btn large grey class="ml-4 mb-4" @click="showLegend = !showLegend">Legend</v-btn>
+    <v-btn large grey class="ml-4 mb-4" @click="showExplain = !showExplain">Explain</v-btn>
 
-      <p>
-        マルチコアの場合、上記の結果ようにCPUごとの使用率が見られます。
-        当然ですが、全てのカラムの値を足すと100%になります。
-        %idleの値が小さいとCPUの使用率が高いということになので、CPUがパフォーマンスのボトルネックになっている可能性があります。
-      </p>
+    <ul class="px-10 py-3 grey darken-2" v-show="showLegend">
+      <li>%user：CPUがユーザモードにあった時間の割合</li>
+      <li>%nice：優先度（nice値）設定されたユーザプロセス実行によるCPU時間の割合</li>
+      <li>%system：CPUがカーネルモードにあった時間の割合</li>
+      <li>%iowait：CPUがIO待ちをしていた時間の割合</li>
+      <li>%steal：ゲストOSがCPU割り当て待ちとなった時間の割合</li>
+      <li>%idle：CPUがアイドル状態にあった時間の割合</li>
+    </ul>
 
-    </v-sheet>
+    <p class="pa-3 grey darken-2" v-show="showExplain">
+      マルチコアの場合、上記の結果ようにCPUごとの使用率が見られます。
+      当然ですが、全てのカラムの値を足すと100%になります。
+      %idleの値が小さいとCPUの使用率が高いということになので、CPUがパフォーマンスのボトルネックになっている可能性があります。
+    </p>
+
+  </v-sheet>
 </template>
 
 <script>
@@ -38,11 +41,12 @@
     data: () => ({
       dataContents: null,
       chartOptions: null,
+      showLegend: false,
+      showExplain: false,
     }),
     props: ['options', 'stats', 'width', 'height'],
     created() {
       this.debug('Cpu Chart created.')
-      this.initialize()
     },
     mounted() {
       this.debug('Cpu Chart mounted.')

@@ -55,7 +55,7 @@
         <v-flex>
           <cpu-chart :options="config" :stats="stats" :width="width" :height="height" ref="cpu"/>
           <mem-chart :options="config" :stats="stats" :width="width" :height="height" ref="mem"/>
-          <queue-chart :options="config" :stats="stats" :width="width" :height="height" ref="load"/>
+          <queue-chart :options="config" :stats="stats" :width="width" :height="height" ref="queue"/>
         </v-flex>
       </v-layout>
 
@@ -72,7 +72,6 @@
   import CpuChart from "./Metrics/CpuChart"
   import MemChart from "./Metrics/MemChart"
   import QueueChart from "./Metrics/QueueChart"
-  import json from '../resorces/sa06'
 
   const FONT_COLOR = "rgba(244, 244, 244, 1)"
   const FONT_SIZE = 10
@@ -85,11 +84,11 @@
         "sa08.json"
       ],
       sheet: false,
-      width: 1600,
-      height: 500,
-      title: "Sar Information Visualization.",
+      width: 500,
+      height: 600,
+      title: "Sar - Collect, report, or save system activity information.",
       footer: "&copy; sar.",
-      stats: json.sysstat.hosts[0].statistics,
+      stats: null,
       config: {
         font_color: FONT_COLOR,
         font_size: FONT_SIZE,
@@ -110,7 +109,6 @@
 
     created() {
       this.debug('Home Component created.')
-      this.initialize()
     },
 
     mounted() {
@@ -119,6 +117,10 @@
 
     methods: {
       initialize: function () {
+        //this.stats = json.sysstat.hosts[0].statistics
+        this.$refs.cpu.initialize()
+        this.$refs.mem.initialize()
+        this.$refs.queue.initialize()
       },
     },
 

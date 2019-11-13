@@ -4,9 +4,13 @@
     :height="height"
     class="graph"
   >
-    <h3>Memory</h3>
+    <h3 class="px-4 font-weight-black">Memory</h3>
     <line-chart :chart-data="dataContents" :options="chartOptions"></line-chart>
-    <ul>
+
+    <v-btn large grey class="ml-4 mb-4" @click="showLegend = !showLegend">Legend</v-btn>
+    <v-btn large grey class="ml-4 mb-4" @click="showExplain = !showExplain">Explain</v-btn>
+
+    <ul class="px-10 py-3 grey darken-2" v-show="showLegend">
       <li>memfree：空きメモリのMB数</li>
       <li>memused：使用中メモリのMB数</li>
       <li>%memused：メモリ使用率</li>
@@ -18,7 +22,7 @@
       <li>dirty：ディスクに同期されていないメモリのMB数</li>
 
     </ul>
-    <p>
+    <p class="pa-3 grey darken-2" v-show="showExplain">
       メモリが足りなくなると、メモリの一部をストレージに退避させるスワッピングが発生し
       パフォーマンスが大きく劣化することがあるので注意。
       ただし、buffersとcachedはカーネルがいつでも開放することができるキャッシュなので、
@@ -39,11 +43,12 @@
     data: () => ({
       dataContents: null,
       chartOptions: null,
+      showLegend: false,
+      showExplain: false,
     }),
     props: ['options', 'stats', 'width', 'height'],
     created() {
       this.debug('Mem Chart created.')
-      this.initialize()
     },
     mounted() {
       this.debug('Mem Chart mounted.')

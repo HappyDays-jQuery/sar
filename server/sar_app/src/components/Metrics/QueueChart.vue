@@ -4,17 +4,20 @@
     :height="height"
     class="graph"
   >
-    <h3>Queue</h3>
+    <h3 class="px-4 font-weight-black">Queue</h3>
     <line-chart :chart-data="dataContents" :options="chartOptions"></line-chart>
 
-    <ul>
+    <v-btn large grey class="ml-4 mb-4" @click="showLegend = !showLegend">Legend</v-btn>
+    <v-btn large grey class="ml-4 mb-4" @click="showExplain = !showExplain">Explain</v-btn>
+
+    <ul class="px-10 py-3 grey darken-2" v-show="showLegend">
       <li>runq-sz：ランキューにあるタスク数</li>
       <li>plist-sz：プロセスリスト中のプロセス数とスレッド数</li>
       <li>ldavg-&LT;n&GT;：最近n分間のロードアベレージ</li>
       <li>blocked;：入出力が完了するのを待っている、現在ブロックされているタスクの数</li>
     </ul>
 
-    <p>
+    <p class="pa-3 grey darken-2" v-show="showExplain">
       ランキューにあるタスク数は、「CPUが現在同時に実行しているタスク数」を表しています。
       一般に、ランキューにあるタスク数がCPUの数を超えると、CPUの数が足りておらずパフォーマンスが落ちている可能性があると言われています。
       ランキューのタスク数は計算機のパフォーマンスがおかしい時に必ず見るべき重要な指標です。
@@ -36,11 +39,12 @@
     data: () => ({
       dataContents: null,
       chartOptions: null,
+      showLegend: false,
+      showExplain: false,
     }),
     props: ['options', 'stats', 'width', 'height'],
     created() {
       this.debug('Load Chart created.')
-      this.initialize()
     },
     mounted() {
       this.debug('Load Chart mounted.')
