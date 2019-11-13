@@ -47,10 +47,22 @@
                 <p>描画領域サイズ</p>
               </v-flex>
               <v-flex xs5 pa-2>
-                <v-slider v-model="width" min="0" max="1500" label="Width"></v-slider>
+                <v-slider v-model="width" min="0" max="1500" label="Width" thumb-label v-on:change="initialize" />
+                {{ width }}px
               </v-flex>
               <v-flex xs5 pa-2>
-                <v-slider v-model="height" min="0" max="1600" label="Height"></v-slider>
+                <v-slider v-model="height" min="0" max="1600" label="Height" thumb-label v-on:change="initialize" />
+                {{ height }}px
+              </v-flex>
+            </v-layout>
+
+            <v-layout row wrap pa-3>
+              <v-flex xs2 pa-2>
+                <p>サンプル解像度</p>
+              </v-flex>
+              <v-flex xs5 pa-2>
+                <v-slider v-model="thinning" min="0" max="99" label="Thinning" thumb-label v-on:change="initialize" />
+                {{ thinning }}%
               </v-flex>
             </v-layout>
           </v-container>
@@ -64,9 +76,12 @@
       <v-layout row wrap>
         <v-flex>
           <draggable :options="options">
-            <cpu-chart :key=1 class="item" :options="config" :stats="stats" :width="width" :height="height" ref="cpu"/>
-            <mem-chart :key=2 class="item" :options="config" :stats="stats" :width="width" :height="height" ref="mem"/>
+            <cpu-chart :key=1 class="item" :options="config" :stats="stats" :width="width" :height="height"
+                       :thinning="thinning" ref="cpu"/>
+            <mem-chart :key=2 class="item" :options="config" :stats="stats" :width="width" :height="height"
+                       :thinning="thinning" ref="mem"/>
             <queue-chart :key=3 class="item" :options="config" :stats="stats" :width="width" :height="height"
+                         :thinning="thinning"
                          ref="queue"/>
           </draggable>
         </v-flex>
@@ -98,6 +113,7 @@
       sheet: false,
       width: 200,
       height: 60,
+      thinning: 50,
       title: "Sar - Collect, report, or save system activity information.",
       stats: null,
       config: {

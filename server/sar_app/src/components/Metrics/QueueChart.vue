@@ -42,7 +42,7 @@
       showLegend: false,
       showExplain: false,
     }),
-    props: ['options', 'stats', 'width', 'height'],
+    props: ['options', 'stats', 'width', 'height', 'thinning'],
     created() {
       this.debug('Load Chart created.')
     },
@@ -162,10 +162,9 @@
         this.loading = false
         let label = [], runq_sz = [], plist_sz = [], ldavg_1 = [], ldavg_5 = [], ldavg_15 = [], blocked = []
         let sample_count = stats.length
-        let thinning = Math.floor(sample_count / 100)
-        this.debug(stats)
+        let thinning_val = Math.floor(sample_count / this.thinning)
         for (let i = 0; i < stats.length; i++) {
-          if (i % thinning !== 0 && sample_count > 100) {
+          if (i % thinning_val !== 0 && sample_count > this.thinning) {
             continue
           }
           label.push(stats[i].timestamp.time.substr(0, 5))
