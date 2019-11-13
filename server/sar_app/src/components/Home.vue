@@ -138,6 +138,18 @@
               :end="times[time_range[1]]"
               ref="queue"
             />
+            <io-chart
+              :key=4
+              class="item"
+              :options="config"
+              :stats="stats"
+              :width="width"
+              :height="height"
+              :thinning="thinning"
+              :start="times[time_range[0]]"
+              :end="times[time_range[1]]"
+              ref="io"
+            />
           </draggable>
         </v-flex>
       </v-layout>
@@ -151,6 +163,7 @@
   import CpuChart from "./Metrics/CpuChart"
   import MemChart from "./Metrics/MemChart"
   import QueueChart from "./Metrics/QueueChart"
+  import IoChart from "./Metrics/IoChart"
 
   const FONT_COLOR = "rgba(244, 244, 244, 1)"
   const FONT_SIZE = 10
@@ -214,6 +227,7 @@
       'cpu-chart': CpuChart,
       'mem-chart': MemChart,
       'queue-chart': QueueChart,
+      'io-chart': IoChart,
       'draggable': draggable,
     },
     props: {},
@@ -233,6 +247,7 @@
           this.$refs.cpu.initialize()
           this.$refs.mem.initialize()
           this.$refs.queue.initialize()
+          this.$refs.io.initialize()
         }
       },
       open() {
