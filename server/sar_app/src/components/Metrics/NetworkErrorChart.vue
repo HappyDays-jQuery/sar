@@ -5,19 +5,22 @@
     class="graph"
     v-show="visible"
   >
-    <h3 class="px-4 mb-4 font-weight-black">Network - {{ iface }}</h3>
+    <h3 class="px-4 mb-4 font-weight-black">Network Error - {{ iface }}</h3>
     <line-chart :chart-data="dataContents" :options="chartOptions"></line-chart>
 
     <v-btn grey class="ml-4 mb-4" @click="showLegend = !showLegend">Legend</v-btn>
     <v-btn grey class="ml-4 mb-4" @click="showExplain = !showExplain">Explain</v-btn>
 
     <ul class="px-10 py-3" v-show="showLegend">
-      <li>rxpck/s：1秒間あたりの送信パケット数</li>
-      <li>rxkB/s：1秒間あたりの受信バイト数</li>
-      <li>txkB/s：1秒間あたりの送信バイト数</li>
-      <li>rxcmp/s：1秒間あたりの圧縮受信パケット数</li>
-      <li>txcmp/s：1秒間あたりの圧縮送信パケット数</li>
-      <li>rxmcst/s：1秒間あたりのマルチキャスト受信パケット数</li>
+      <li>rxerr/s：1秒あたり総受信不良パケット数</li>
+      <li>txerr/s：パケット送信時に発生した1秒あたりエラー発生数</li>
+      <li>coll/s：パケット送信時に発生した1秒あたりパケット衝突数</li>
+      <li>rxdrop/s：Linuxバッファ上の領域不足によって発生した、1秒あたりの受信パケットのドロップ数</li>
+      <li>txdrop/s：Linuxバッファ上の領域不足によって発生した、1秒あたりの送信パケットのドロップ数</li>
+      <li>txcarr/s：パケット送信時に発生した1秒あたりのキャリアエラー数</li>
+      <li>rxfram/s：パケット受信時に発生した、1秒あたりフレーム・アラインメント・エラー数</li>
+      <li>rxfifo/s：秒あたりの受信パケットのFIFOオーバーラン・エラー数</li>
+      <li>txfifo/s：1秒あたりの送信パケットのFIFOオーバーラン・エラー数</li>
     </ul>
     <p class="pa-3" v-show="showExplain">
 
@@ -30,7 +33,7 @@
   import 'chartjs-plugin-colorschemes'
 
   export default {
-    name: 'NetworkChart',
+    name: 'NetworkErrorChart',
     components: {
       "line-chart": LineChart,
     },
@@ -39,15 +42,15 @@
       chartOptions: null,
       showLegend: false,
       showExplain: false,
-      iface:'-',
+      iface: '-',
       visible: true
     }),
     props: ['options', 'stats', 'width', 'height', 'thinning', 'start', 'end', 'iface_no'],
     created() {
-      this.debug('Network Chart created.')
+      this.debug('Network Error Chart created.')
     },
     mounted() {
-      this.debug('Network Chart mounted.')
+      this.debug('Network Error Chart mounted.')
     },
     methods: {
       initialize: function () {
@@ -81,8 +84,6 @@
           scales: {
             yAxes: [
               {
-                id: "y-axis-1",
-                position: "left",
                 ticks: {
                   autoSkip: true,
                   maxTicksLimit: 5,
@@ -94,25 +95,7 @@
                   display: true,
                   fontSize: this.options.font_size,
                   fontColor: this.options.font_color,
-                  labelString: "Packet Count"
-                }
-              },
-              {
-                id: "y-axis-2",
-                position: "right",
-                ticks: {
-                  autoSkip: true,
-                  maxTicksLimit: 5,
-                  max: 100,
-                  min: 0,
-                  fontColor: this.options.font_color
-                },
-                gridLines: this.options.grid_line_setting,
-                scaleLabel: {
-                  display: true,
-                  fontSize: this.options.font_size,
-                  fontColor: this.options.font_color,
-                  labelString: "Byte"
+                  labelString: "Count"
                 }
               }
             ],
@@ -145,13 +128,13 @@
         this.dataContents = {
           labels: label,
           datasets: [
-            {label: 'rxcmp/s', data: rxcmp, yAxisID: "y-axis-1"},
-            {label: 'rxkB/s', data: rxkB, yAxisID: "y-axis-2"},
-            {label: 'rxmcst/s', data: rxmcst, yAxisID: "y-axis-1"},
-            {label: 'rxpck/s', data: rxpck, yAxisID: "y-axis-1"},
-            {label: 'txcmp/s', data: txcmp, yAxisID: "y-axis-1"},
-            {label: 'txkB/s', data: txkB, yAxisID: "y-axis-2"},
-            {label: 'txpck/s', data: txpck, yAxisID: "y-axis-1"},
+            {label: 'rxcmp/s', data: rxcmp},
+            {label: 'rxkB/s', data: rxkB},
+            {label: 'rxmcst/s', data: rxmcst},
+            {label: 'rxpck/s', data: rxpck},
+            {label: 'txcmp/s', data: txcmp},
+            {label: 'txkB/s', data: txkB},
+            {label: 'txpck/s', data: txpck},
           ]
         }
       },
@@ -161,18 +144,18 @@
       },
       assignStats(stats) {
         this.loading = false
-        let label = [], rxcmp = [], rxkB = [], rxmcst = [], rxpck = [], txcmp = [], txkB = [], txpck = []
+        let label = [], coll = [], rxdrop = [], rxerr = [], rxfifo = [], rxfram = [], txcarr = [], txdrop = [], txerr = [], txfifo = []
         let sample_count = stats.length
         let thinning_val = Math.floor(sample_count / this.thinning)
-        if(!this.stats[0].network['net-dev'][this.iface_no]){
+        if (!this.stats[0].network['net-edev'][this.iface_no]) {
           this.visible = false
           this.iface = "No Data."
-          this.fillData(label, rxcmp, rxkB, rxmcst, rxpck, txcmp, txkB, txpck)
+          this.fillData(label, coll, rxdrop, rxerr, rxfifo, rxfram, txcarr, txdrop, txerr, txfifo)
           return
         }
 
         this.visible = true
-        this.iface = this.stats[0].network['net-dev'][this.iface_no].iface
+        this.iface = this.stats[0].network['net-edev'][this.iface_no].iface
         for (let i = 0; i < stats.length; i++) {
           let time_str = stats[i].timestamp.time.substr(0, 5)
           if (i % thinning_val !== 0 && sample_count > this.thinning) {
@@ -182,15 +165,17 @@
             continue
           }
           label.push(time_str)
-          rxcmp.push(stats[i].network['net-dev'][this.iface_no].rxcmp)
-          rxkB.push(stats[i].network['net-dev'][this.iface_no].rxkB)
-          rxmcst.push(stats[i].network['net-dev'][this.iface_no].rxmcst)
-          rxpck.push(stats[i].network['net-dev'][this.iface_no].rxpck)
-          txcmp.push(stats[i].network['net-dev'][this.iface_no].txcmp)
-          txkB.push(stats[i].network['net-dev'][this.iface_no].txkB)
-          txpck.push(stats[i].network['net-dev'][this.iface_no].txpck)
+          coll.push(stats[i].network['net-edev'][this.iface_no].coll)
+          rxdrop.push(stats[i].network['net-edev'][this.iface_no].rxdrop)
+          rxerr.push(stats[i].network['net-edev'][this.iface_no].rxerr)
+          rxfifo.push(stats[i].network['net-edev'][this.iface_no].rxfifo)
+          rxfram.push(stats[i].network['net-edev'][this.iface_no].rxfram)
+          txcarr.push(stats[i].network['net-edev'][this.iface_no].txcarr)
+          txdrop.push(stats[i].network['net-edev'][this.iface_no].txdrop)
+          txerr.push(stats[i].network['net-edev'][this.iface_no].txerr)
+          txfifo.push(stats[i].network['net-edev'][this.iface_no].txfifo)
         }
-        this.fillData(label, rxcmp, rxkB, rxmcst, rxpck, txcmp, txkB, txpck)
+        this.fillData(label, coll, rxdrop, rxerr, rxfifo, rxfram, txcarr, txdrop, txerr, txfifo)
 
       },
       errorStats(data) {

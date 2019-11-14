@@ -248,6 +248,84 @@
               :iface_no=5
             />
 
+            <network-error-chart
+              :key=12
+              class="item"
+              :options="config"
+              :stats="stats"
+              :width="width"
+              :height="height"
+              :thinning="thinning"
+              :start="times[time_range[0]]"
+              :end="times[time_range[1]]"
+              ref="network_error_0"
+              :iface_no=0
+            />
+            <network-error-chart
+              :key=13
+              class="item"
+              :options="config"
+              :stats="stats"
+              :width="width"
+              :height="height"
+              :thinning="thinning"
+              :start="times[time_range[0]]"
+              :end="times[time_range[1]]"
+              ref="network_error_1"
+              :iface_no=1
+            />
+            <network-error-chart
+              :key=14
+              class="item"
+              :options="config"
+              :stats="stats"
+              :width="width"
+              :height="height"
+              :thinning="thinning"
+              :start="times[time_range[0]]"
+              :end="times[time_range[1]]"
+              ref="network_error_2"
+              :iface_no=2
+            />
+            <network-error-chart
+              :key=15
+              class="item"
+              :options="config"
+              :stats="stats"
+              :width="width"
+              :height="height"
+              :thinning="thinning"
+              :start="times[time_range[0]]"
+              :end="times[time_range[1]]"
+              ref="network_error_3"
+              :iface_no=3
+            />
+            <network-error-chart
+              :key=16
+              class="item"
+              :options="config"
+              :stats="stats"
+              :width="width"
+              :height="height"
+              :thinning="thinning"
+              :start="times[time_range[0]]"
+              :end="times[time_range[1]]"
+              ref="network_error_4"
+              :iface_no=4
+            />
+            <network-error-chart
+              :key=17
+              class="item"
+              :options="config"
+              :stats="stats"
+              :width="width"
+              :height="height"
+              :thinning="thinning"
+              :start="times[time_range[0]]"
+              :end="times[time_range[1]]"
+              ref="network_error_5"
+              :iface_no=5
+            />
           </draggable>
         </v-flex>
       </v-layout>
@@ -264,6 +342,7 @@
   import IoChart from "./Metrics/IoChart"
   import DiskChart from "./Metrics/DiskChart"
   import NetworkChart from "./Metrics/NetworkChart"
+  import NetworkErrorChart from "./Metrics/NetworkErrorChart"
 
   const FONT_SIZE = 10
   let FONT_COLOR = "white"
@@ -330,6 +409,7 @@
       'io-chart': IoChart,
       'disk-chart': DiskChart,
       'network-chart': NetworkChart,
+      'network-error-chart': NetworkErrorChart,
       'draggable': draggable,
     },
     props: {},
@@ -377,6 +457,12 @@
           this.$refs.network_3.initialize()
           this.$refs.network_4.initialize()
           this.$refs.network_5.initialize()
+          this.$refs.network_error_0.initialize()
+          this.$refs.network_error_1.initialize()
+          this.$refs.network_error_2.initialize()
+          this.$refs.network_error_3.initialize()
+          this.$refs.network_error_4.initialize()
+          this.$refs.network_error_5.initialize()
         }
       },
       close() {
