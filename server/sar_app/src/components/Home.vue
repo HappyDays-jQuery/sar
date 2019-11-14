@@ -29,12 +29,6 @@
           <v-container fluid>
             <v-layout row wrap pa-3>
               <v-flex xs2 pa-2>
-                <p>テーマ選択</p>
-              </v-flex>
-              <v-flex xs3 pa-2>
-                <v-switch v-model="isDark" class="ma-2" label="Dark"></v-switch>
-              </v-flex>
-              <v-flex xs2 pa-2>
                 <p>リソースデータ選択</p>
               </v-flex>
               <v-flex xs3 pa-2>
@@ -49,6 +43,12 @@
                   選択
                   <v-progress-circular slot="loading" indeterminate color="primary" dark></v-progress-circular>
                 </v-btn>
+              </v-flex>
+              <v-flex xs2 pa-2>
+                <p>テーマ選択</p>
+              </v-flex>
+              <v-flex xs3 pa-2>
+                <v-switch v-model="isDark" class="ma-2" label="Dark"></v-switch>
               </v-flex>
             </v-layout>
 
@@ -326,6 +326,30 @@
               ref="network_error_5"
               :iface_no=5
             />
+            <paging-chart
+              :key=18
+              class="item"
+              :options="config"
+              :stats="stats"
+              :width="width"
+              :height="height"
+              :thinning="thinning"
+              :start="times[time_range[0]]"
+              :end="times[time_range[1]]"
+              ref="paging"
+            />
+            <swap-chart
+              :key=19
+              class="item"
+              :options="config"
+              :stats="stats"
+              :width="width"
+              :height="height"
+              :thinning="thinning"
+              :start="times[time_range[0]]"
+              :end="times[time_range[1]]"
+              ref="swap"
+            />
           </draggable>
         </v-flex>
       </v-layout>
@@ -343,6 +367,8 @@
   import DiskChart from "./Metrics/DiskChart"
   import NetworkChart from "./Metrics/NetworkChart"
   import NetworkErrorChart from "./Metrics/NetworkErrorChart"
+  import PagingChart from "./Metrics/PagingChart"
+  import SwapChart from "./Metrics/SwapChart"
 
   const FONT_SIZE = 10
   let FONT_COLOR = "white"
@@ -410,6 +436,8 @@
       'disk-chart': DiskChart,
       'network-chart': NetworkChart,
       'network-error-chart': NetworkErrorChart,
+      'paging-chart': PagingChart,
+      'swap-chart': SwapChart,
       'draggable': draggable,
     },
     props: {},
@@ -463,6 +491,8 @@
           this.$refs.network_error_3.initialize()
           this.$refs.network_error_4.initialize()
           this.$refs.network_error_5.initialize()
+          this.$refs.paging.initialize()
+          this.$refs.swap.initialize()
         }
       },
       close() {

@@ -3,25 +3,28 @@
     :width="width"
     :height="height"
     class="graph"
-    v-show="visible"
   >
-    <h3 class="px-4 mb-4 font-weight-black">Network - {{ iface }}</h3>
+    <h3 class="px-4 mb-4 font-weight-black">Paging</h3>
+
     <line-chart :chart-data="dataContents" :options="chartOptions"></line-chart>
 
     <v-btn grey class="ml-4 mb-4" @click="showLegend = !showLegend">Legend</v-btn>
     <v-btn grey class="ml-4 mb-4" @click="showExplain = !showExplain">Explain</v-btn>
 
     <ul class="px-10 py-3" v-show="showLegend">
-      <li>rxpck/s：1秒間あたりの送信パケット数</li>
-      <li>rxkB/s：1秒間あたりの受信バイト数</li>
-      <li>txkB/s：1秒間あたりの送信バイト数</li>
-      <li>rxcmp/s：1秒間あたりの圧縮受信パケット数</li>
-      <li>txcmp/s：1秒間あたりの圧縮送信パケット数</li>
-      <li>rxmcst/s：1秒間あたりのマルチキャスト受信パケット数</li>
+      <li>pgpgin/s：1秒間にディスクからページインしたKBの合計数</li>
+      <li>pgpgout/s：1秒間にディスクからページアウトしたKBの合計数</li>
+      <li>fault/s：1秒間に行なわれたページフォールトの数</li>
+      <li>majflt/s：1秒間に行なわれたメジャーフォールトの数</li>
+      <li>pgfree/s：1秒間に空きメモリへ登録されたページ数</li>
+      <li>pgscank/s：1秒間に<code>kswapd</code>デーモンによって回収されたページ数</li>
+      <li>pgscand/s：1秒間にプロセスから直接回収されたページ数</li>
+      <li>pgsteal/s：1秒間にキャッシュから回収したページ数</li>
+      <li>%vmeff：<code>pgsteal/pgscand</code>の値。ページ再利用の効率性を示す。</li>
     </ul>
     <p class="pa-3" v-show="showExplain">
-
     </p>
+
   </v-sheet>
 </template>
 
@@ -30,7 +33,7 @@
   import 'chartjs-plugin-colorschemes'
 
   export default {
-    name: 'NetworkChart',
+    name: 'DiskChart',
     components: {
       "line-chart": LineChart,
     },
@@ -39,20 +42,18 @@
       chartOptions: null,
       showLegend: false,
       showExplain: false,
-      iface:'-',
-      visible: true
     }),
-    props: ['options', 'stats', 'width', 'height', 'thinning', 'start', 'end', 'iface_no'],
+    props: ['options', 'stats', 'width', 'height', 'thinning', 'start', 'end'],
     created() {
-      this.debug('Network Chart created.')
+      this.debug('Disk Chart created.')
     },
     mounted() {
-      this.debug('Network Chart mounted.')
+      this.debug('Disk Chart mounted.')
     },
     methods: {
       initialize: function () {
-        this.setStats()
         this.setOption()
+        this.setStats()
       },
       setOption() {
         this.chartOptions = {
@@ -94,7 +95,7 @@
                   display: true,
                   fontSize: this.options.font_size,
                   fontColor: this.options.font_color,
-                  labelString: "Packet Count"
+                  labelString: "kB / Count"
                 }
               },
               {
@@ -111,9 +112,10 @@
                   display: true,
                   fontSize: this.options.font_size,
                   fontColor: this.options.font_color,
-                  labelString: "Byte"
+                  labelString: "%"
                 }
               }
+
             ],
             xAxes: [
               {
@@ -140,17 +142,18 @@
           },
         }
       },
-      fillData(label, rxcmp, rxkB, rxmcst, rxpck, txcmp, txkB, txpck) {
+      fillData(label, majflt, pgfree, pgpgin, pgpgout, pgscand, pgscank, pgsteal, uvmeff_percent) {
         this.dataContents = {
           labels: label,
           datasets: [
-            {label: 'rxcmp/s', data: rxcmp, yAxisID: "y-axis-1"},
-            {label: 'rxkB/s', data: rxkB, yAxisID: "y-axis-2"},
-            {label: 'rxmcst/s', data: rxmcst, yAxisID: "y-axis-1"},
-            {label: 'rxpck/s', data: rxpck, yAxisID: "y-axis-1"},
-            {label: 'txcmp/s', data: txcmp, yAxisID: "y-axis-1"},
-            {label: 'txkB/s', data: txkB, yAxisID: "y-axis-2"},
-            {label: 'txpck/s', data: txpck, yAxisID: "y-axis-1"},
+            {label: 'majflt/s', data: majflt, yAxisID: "y-axis-1"},
+            {label: 'pgfree/s', data: pgfree, yAxisID: "y-axis-1"},
+            {label: 'pgpgin/s', data: pgpgin, yAxisID: "y-axis-1"},
+            {label: 'pgpgout/s', data: pgpgout, yAxisID: "y-axis-1"},
+            {label: 'pgscand/s', data: pgscand , yAxisID: "y-axis-1"},
+            {label: 'pgscank/s', data: pgscank , yAxisID: "y-axis-1"},
+            {label: 'pgsteasl/s', data: pgsteal , yAxisID: "y-axis-1"},
+            {label: '%uvmeff', data: uvmeff_percent , yAxisID: "y-axis-2"},
           ]
         }
       },
@@ -159,44 +162,33 @@
         this.assignStats(this.stats)
       },
       assignStats(stats) {
-        this.loading = false
-        let label = [], rxcmp = [], rxkB = [], rxmcst = [], rxpck = [], txcmp = [], txkB = [], txpck = []
+        let label = [], majflt = [], pgfree = [], pgpgin = [], pgpgout = [], pgscand  = [], pgscank  = [], pgsteal  = [], uvmeff_percent  = []
         let sample_count = stats.length
         let thinning_val = Math.floor(sample_count / this.thinning)
-        if(!this.stats[0].network['net-dev'][this.iface_no]){
-          this.visible = false
-          this.iface = "No Data."
-          this.fillData(label, rxcmp, rxkB, rxmcst, rxpck, txcmp, txkB, txpck)
-          return
-        }
 
-        this.visible = true
-        this.iface = this.stats[0].network['net-dev'][this.iface_no].iface
         for (let i = 0; i < stats.length; i++) {
           let time_str = stats[i].timestamp.time.substr(0, 5)
-          if (i % thinning_val !== 0 && sample_count > this.thinning) {
+
+          if (i % thinning_val !== 0
+              && sample_count > this.thinning) {
             continue
           }
-          if (!(this.start < time_str && this.end > time_str)) {
+
+          if(!(this.start < time_str && this.end > time_str)){
             continue
           }
           label.push(time_str)
-          rxcmp.push(stats[i].network['net-dev'][this.iface_no].rxcmp)
-          rxkB.push(stats[i].network['net-dev'][this.iface_no].rxkB)
-          rxmcst.push(stats[i].network['net-dev'][this.iface_no].rxmcst)
-          rxpck.push(stats[i].network['net-dev'][this.iface_no].rxpck)
-          txcmp.push(stats[i].network['net-dev'][this.iface_no].txcmp)
-          txkB.push(stats[i].network['net-dev'][this.iface_no].txkB)
-          txpck.push(stats[i].network['net-dev'][this.iface_no].txpck)
+          majflt.push(stats[i].paging.majflt)
+          pgfree.push(stats[i].paging.pgfree)
+          pgpgin.push(stats[i].paging.pgpgin)
+          pgpgout.push(stats[i].paging.pgpgout)
+          pgscand.push(stats[i].paging.pgscand)
+          pgscank.push(stats[i].paging.pgscank)
+          pgsteal.push(stats[i].paging.pgsteal)
+          uvmeff_percent.push(stats[i].paging['uvmeff-precent'])
         }
-        this.fillData(label, rxcmp, rxkB, rxmcst, rxpck, txcmp, txkB, txpck)
-
+        this.fillData(label, majflt, pgfree, pgpgin, pgpgout, pgscand, pgscank, pgsteal, uvmeff_percent)
       },
-      errorStats(data) {
-        this.loading = false
-        this.disabled = false
-        this.debug(data)
-      }
     }
   }
 </script>
