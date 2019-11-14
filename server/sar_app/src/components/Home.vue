@@ -21,7 +21,7 @@
 
         <v-sheet
           class="text-center"
-          height="600px">
+          height="720px">
           <v-btn class="mt-6" @click="close">
             close
           </v-btn>
@@ -29,7 +29,7 @@
           <v-container fluid>
             <v-layout row wrap pa-3>
               <v-flex xs2 pa-2>
-                <p>リソースデータ選択</p>
+                <p class="text-md-left">リソースデータ選択</p>
               </v-flex>
               <v-flex xs3 pa-2>
                 <v-btn
@@ -54,7 +54,36 @@
 
             <v-layout row wrap pa-3>
               <v-flex xs2 pa-2>
-                <p>描画領域サイズ</p>
+                <p class="text-md-left">グラフ表示</p>
+              </v-flex>
+              <v-flex xs10 pa-2>
+                <v-row justify="start">
+                  <v-checkbox v-model="cpu" label="CPU"></v-checkbox>
+                  <v-checkbox v-model="mem" label="Memory"></v-checkbox>
+                  <v-checkbox v-model="queue" label="Queu"></v-checkbox>
+                  <v-checkbox v-model="io" label="I/O"></v-checkbox>
+                  <v-checkbox v-model="disk" label="Disk"></v-checkbox>
+                  <v-checkbox v-model="nw1" label="Network 1"></v-checkbox>
+                  <v-checkbox v-model="nw2" label="Network 2"></v-checkbox>
+                  <v-checkbox v-model="nw3" label="Network 3"></v-checkbox>
+                  <v-checkbox v-model="nw4" label="Network 4"></v-checkbox>
+                  <v-checkbox v-model="nw5" label="Network 5"></v-checkbox>
+                  <v-checkbox v-model="nw6" label="Network 6"></v-checkbox>
+                  <v-checkbox v-model="nw_err1" label="Network Error 1"></v-checkbox>
+                  <v-checkbox v-model="nw_err2" label="Network Error 2"></v-checkbox>
+                  <v-checkbox v-model="nw_err3" label="Network Error 3"></v-checkbox>
+                  <v-checkbox v-model="nw_err4" label="Network Error 4"></v-checkbox>
+                  <v-checkbox v-model="nw_err5" label="Network Error 5"></v-checkbox>
+                  <v-checkbox v-model="nw_err6" label="Network Error 6"></v-checkbox>
+                  <v-checkbox v-model="paging" label="Paging"></v-checkbox>
+                  <v-checkbox v-model="swap" label="swap"></v-checkbox>
+                </v-row>
+              </v-flex>
+            </v-layout>
+
+            <v-layout row wrap pa-3>
+              <v-flex xs2 pa-2>
+                <p class="text-md-left">描画領域サイズ</p>
               </v-flex>
               <v-flex xs5 pa-2>
                 <v-slider v-model="width" min="0" max="1500" label="Width" thumb-label v-on:change="initialize"/>
@@ -68,7 +97,7 @@
 
             <v-layout row wrap pa-3>
               <v-flex xs2 pa-2>
-                <p>サンプル解像度</p>
+                <p class="text-md-left">サンプル解像度</p>
               </v-flex>
               <v-flex xs5 pa-2>
                 <v-slider v-model="thinning" min="1" max="100" label="Thinning" thumb-label v-on:change="initialize"/>
@@ -78,7 +107,7 @@
 
             <v-layout row wrap pa-3>
               <v-flex xs2 pa-2>
-                <p>時間帯</p>
+                <p class="text-md-left">時間帯</p>
               </v-flex>
               <v-flex xs5 pa-2>
                 <v-range-slider
@@ -119,6 +148,7 @@
               :start="times[time_range[0]]"
               :end="times[time_range[1]]"
               ref="cpu"
+              :show="cpu"
             />
             <mem-chart
               :key=2
@@ -131,6 +161,7 @@
               :start="times[time_range[0]]"
               :end="times[time_range[1]]"
               ref="mem"
+              :show="mem"
             />
             <queue-chart
               :key=3
@@ -143,6 +174,7 @@
               :start="times[time_range[0]]"
               :end="times[time_range[1]]"
               ref="queue"
+              :show="queue"
             />
             <io-chart
               :key=4
@@ -155,6 +187,7 @@
               :start="times[time_range[0]]"
               :end="times[time_range[1]]"
               ref="io"
+              :show="io"
             />
             <disk-chart
               :key=5
@@ -167,6 +200,7 @@
               :start="times[time_range[0]]"
               :end="times[time_range[1]]"
               ref="disk"
+              :show="disk"
             />
 
             <network-chart
@@ -181,6 +215,7 @@
               :end="times[time_range[1]]"
               ref="network_0"
               :iface_no=0
+              :show="nw1"
             />
             <network-chart
               :key=7
@@ -194,6 +229,7 @@
               :end="times[time_range[1]]"
               ref="network_1"
               :iface_no=1
+              :show="nw2"
             />
             <network-chart
               :key=8
@@ -207,6 +243,7 @@
               :end="times[time_range[1]]"
               ref="network_2"
               :iface_no=2
+              :show="nw3"
             />
             <network-chart
               :key=9
@@ -220,6 +257,7 @@
               :end="times[time_range[1]]"
               ref="network_3"
               :iface_no=3
+              :show="nw4"
             />
             <network-chart
               :key=10
@@ -233,6 +271,7 @@
               :end="times[time_range[1]]"
               ref="network_4"
               :iface_no=4
+              :show="nw5"
             />
             <network-chart
               :key=11
@@ -246,6 +285,7 @@
               :end="times[time_range[1]]"
               ref="network_5"
               :iface_no=5
+              :show="nw6"
             />
 
             <network-error-chart
@@ -260,6 +300,7 @@
               :end="times[time_range[1]]"
               ref="network_error_0"
               :iface_no=0
+              :show="nw_err1"
             />
             <network-error-chart
               :key=13
@@ -273,6 +314,7 @@
               :end="times[time_range[1]]"
               ref="network_error_1"
               :iface_no=1
+              :show="nw_err2"
             />
             <network-error-chart
               :key=14
@@ -286,6 +328,7 @@
               :end="times[time_range[1]]"
               ref="network_error_2"
               :iface_no=2
+              :show="nw_err3"
             />
             <network-error-chart
               :key=15
@@ -299,6 +342,7 @@
               :end="times[time_range[1]]"
               ref="network_error_3"
               :iface_no=3
+              :show="nw_err3"
             />
             <network-error-chart
               :key=16
@@ -312,6 +356,7 @@
               :end="times[time_range[1]]"
               ref="network_error_4"
               :iface_no=4
+              :show="nw_err5"
             />
             <network-error-chart
               :key=17
@@ -325,6 +370,7 @@
               :end="times[time_range[1]]"
               ref="network_error_5"
               :iface_no=5
+              :show="nw_err6"
             />
             <paging-chart
               :key=18
@@ -337,6 +383,7 @@
               :start="times[time_range[0]]"
               :end="times[time_range[1]]"
               ref="paging"
+              :show="paging"
             />
             <swap-chart
               :key=19
@@ -349,6 +396,7 @@
               :start="times[time_range[0]]"
               :end="times[time_range[1]]"
               ref="swap"
+              :show="swap"
             />
           </draggable>
         </v-flex>
@@ -378,6 +426,25 @@
   export default {
     data: () => ({
       isDark: true,
+      cpu: true,
+      mem: true,
+      queue: true,
+      io: true,
+      disk: true,
+      nw1: false,
+      nw2: false,
+      nw3: false,
+      nw4: false,
+      nw5: false,
+      nw6: false,
+      nw_err1: false,
+      nw_err2: false,
+      nw_err3: false,
+      nw_err4: false,
+      nw_err5: false,
+      nw_err6: false,
+      paging: true,
+      swap: true,
       options: {
         animation: 200
       },

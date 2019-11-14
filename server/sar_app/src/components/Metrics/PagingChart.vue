@@ -3,6 +3,7 @@
     :width="width"
     :height="height"
     class="graph"
+    v-show="show"
   >
     <h3 class="px-4 mb-4 font-weight-black">Paging</h3>
 
@@ -43,7 +44,7 @@
       showLegend: false,
       showExplain: false,
     }),
-    props: ['options', 'stats', 'width', 'height', 'thinning', 'start', 'end'],
+    props: ['options', 'stats', 'width', 'height', 'thinning', 'start', 'end', 'show'],
     created() {
       this.debug('Disk Chart created.')
     },

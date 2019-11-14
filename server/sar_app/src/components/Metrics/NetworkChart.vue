@@ -3,7 +3,7 @@
     :width="width"
     :height="height"
     class="graph"
-    v-show="visible"
+    v-show="show"
   >
     <h3 class="px-4 mb-4 font-weight-black">Network - {{ iface }}</h3>
     <line-chart :chart-data="dataContents" :options="chartOptions"></line-chart>
@@ -40,9 +40,8 @@
       showLegend: false,
       showExplain: false,
       iface:'-',
-      visible: true
     }),
-    props: ['options', 'stats', 'width', 'height', 'thinning', 'start', 'end', 'iface_no'],
+    props: ['options', 'stats', 'width', 'height', 'thinning', 'start', 'end', 'iface_no', 'show'],
     created() {
       this.debug('Network Chart created.')
     },
@@ -164,13 +163,11 @@
         let sample_count = stats.length
         let thinning_val = Math.floor(sample_count / this.thinning)
         if(!this.stats[0].network['net-dev'][this.iface_no]){
-          this.visible = false
           this.iface = "No Data."
           this.fillData(label, rxcmp, rxkB, rxmcst, rxpck, txcmp, txkB, txpck)
           return
         }
 
-        this.visible = true
         this.iface = this.stats[0].network['net-dev'][this.iface_no].iface
         for (let i = 0; i < stats.length; i++) {
           let time_str = stats[i].timestamp.time.substr(0, 5)
