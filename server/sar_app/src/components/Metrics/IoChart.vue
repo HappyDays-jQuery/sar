@@ -11,7 +11,7 @@
     <v-btn grey class="ml-4 mb-4" @click="showLegend = !showLegend">Legend</v-btn>
     <v-btn grey class="ml-4 mb-4" @click="showExplain = !showExplain">Explain</v-btn>
 
-    <ul class="px-10 py-3 grey darken-2" v-show="showLegend">
+    <ul class="px-10 py-3" v-show="showLegend">
       <li>tps：秒間I/Oリクエスト 数の合計</li>
       <li>rtps：秒間読み込みIOリクエスト数の合計</li>
       <li>wtps：秒間書き込みIOリクエスト数の合計</li>
@@ -19,7 +19,7 @@
       <li>bwrtn/s：秒間書き込み（ブロック単位）IOリクエストのデータ量の合計</li>
     </ul>
 
-    <p class="pa-3 grey darken-2" v-show="showExplain">
+    <p class="pa-3" v-show="showExplain">
     </p>
 
   </v-sheet>
@@ -156,7 +156,6 @@
         this.assignStats(this.stats)
       },
       assignStats(stats) {
-        this.debug(stats)
         let label = [], tps = [], rtps = [], wtps = [], breadps = [], bwrtnps = []
         let sample_count = stats.length
         let thinning_val = Math.floor(sample_count / this.thinning)

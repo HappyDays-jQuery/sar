@@ -11,7 +11,7 @@
     <v-btn grey class="ml-4 mb-4" @click="showLegend = !showLegend">Legend</v-btn>
     <v-btn grey class="ml-4 mb-4" @click="showExplain = !showExplain">Explain</v-btn>
 
-    <ul class="px-10 py-3 grey darken-2" v-show="showLegend">
+    <ul class="px-10 py-3" v-show="showLegend">
       <li>tps：１秒間あたりのI/O転送回数</li>
       <li>rd_sec/s：１秒間あたりに読み込みを行ったセクター数</li>
       <li>wr_sec/s：１秒間あたりに書き込みを行ったセクター数</li>
@@ -21,7 +21,7 @@
       <li>svctm：</li>
       <li>%util：ディスクの使用率（I/O処理をしていてビジーだった時間の割合）</li>
     </ul>
-    <p class="pa-3 grey darken-2" v-show="showExplain">
+    <p class="pa-3" v-show="showExplain">
       <code>%util</code>の値が大きい場合はIOがボトルネックになっている可能性があります。また、<code>await</code>はアプリケーションのパフォーマンスに直接的に影響する値なので重要です。
     </p>
 
@@ -162,7 +162,6 @@
         this.assignStats(this.stats)
       },
       assignStats(stats) {
-        this.debug(stats)
         let label = [], tps = [], rd_sec = [], wr_sec = [], avgrq_sz = [], avgqu_sz  = [], _await  = [], svctm  = [], util_precent  = []
         let sample_count = stats.length
         let thinning_val = Math.floor(sample_count / this.thinning)

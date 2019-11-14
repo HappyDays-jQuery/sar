@@ -10,7 +10,7 @@
     <v-btn grey class="ml-4 mb-4" @click="showLegend = !showLegend">Legend</v-btn>
     <v-btn grey class="ml-4 mb-4" @click="showExplain = !showExplain">Explain</v-btn>
 
-    <ul class="px-10 py-3 grey darken-2" v-show="showLegend">
+    <ul class="px-10 py-3" v-show="showLegend">
       <li>memfree：空きメモリのMB数</li>
       <li>memused：使用中メモリのMB数</li>
       <li>%memused：メモリ使用率</li>
@@ -22,7 +22,7 @@
       <li>dirty：ディスクに同期されていないメモリのMB数</li>
 
     </ul>
-    <p class="pa-3 grey darken-2" v-show="showExplain">
+    <p class="pa-3" v-show="showExplain">
       メモリが足りなくなると、メモリの一部をストレージに退避させるスワッピングが発生し
       パフォーマンスが大きく劣化することがあるので注意。
       ただし、buffersとcachedはカーネルがいつでも開放することができるキャッシュなので、

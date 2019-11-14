@@ -12,22 +12,28 @@
         {{ title }}
       </v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-bottom-sheet v-model="sheet">
+      <v-bottom-sheet v-model="sheet" persistent>
         <template v-slot:activator="{ on }">
           <v-btn v-on="on" icon>
             <v-icon>mdi-settings</v-icon>
           </v-btn>
         </template>
 
-        <v-sheet class="text-center" height="600px">
-          <v-btn
-            class="mt-6"
-            @click="sheet = !sheet"
-          >close
+        <v-sheet
+          class="text-center"
+          height="600px">
+          <v-btn class="mt-6" @click="close">
+            close
           </v-btn>
 
           <v-container fluid>
             <v-layout row wrap pa-3>
+              <v-flex xs2 pa-2>
+                <p>テーマ選択</p>
+              </v-flex>
+              <v-flex xs3 pa-2>
+                <v-switch v-model="isDark" class="ma-2" label="Dark"></v-switch>
+              </v-flex>
               <v-flex xs2 pa-2>
                 <p>リソースデータ選択</p>
               </v-flex>
@@ -65,7 +71,7 @@
                 <p>サンプル解像度</p>
               </v-flex>
               <v-flex xs5 pa-2>
-                <v-slider v-model="thinning" min="0" max="99" label="Thinning" thumb-label v-on:change="initialize"/>
+                <v-slider v-model="thinning" min="1" max="100" label="Thinning" thumb-label v-on:change="initialize"/>
                 {{ thinning }}%
               </v-flex>
             </v-layout>
@@ -178,14 +184,14 @@
   import IoChart from "./Metrics/IoChart"
   import DiskChart from "./Metrics/DiskChart"
 
-  const FONT_COLOR = "rgba(244, 244, 244, 1)"
   const FONT_SIZE = 10
-
+  let FONT_COLOR = "white"
   const {dialog, BrowserWindow} = require('electron').remote
   const fs = require('fs')
 
   export default {
     data: () => ({
+      isDark: true,
       options: {
         animation: 200
       },
@@ -253,10 +259,30 @@
     mounted() {
       this.debug('Home Component mounted.')
     },
+    watch: {
+      isDark(newValue) {
+        this.debug("watch isDark:" + newValue)
+        this.$vuetify.theme.dark = !this.$vuetify.theme.dark
+        this.debug("watch theme.dark:" + this.$vuetify.theme.dark)
+        this.config = {
+          font_color: this.$vuetify.theme.dark ? "white" : "black",
+          font_size: FONT_SIZE,
+          grid_line_setting: {
+            display: true,
+            drawOnChartArea: true,
+            color: "rgba(128, 128, 128, .5)",
+            zeroLineColor: "rgba(64, 64, 64, 1)"
+          }
+        }
+
+        this.initialize()
+      }
+    },
+
 
     methods: {
       initialize: function () {
-        if (this.json !== null) {
+        if(this.json !== null) {
           this.stats = this.json.sysstat.hosts[0].statistics
           this.$refs.cpu.initialize()
           this.$refs.mem.initialize()
@@ -264,6 +290,10 @@
           this.$refs.io.initialize()
           this.$refs.disk.initialize()
         }
+      },
+      close() {
+        this.sheet = !this.sheet
+        this.initialize()
       },
       open() {
         const win = BrowserWindow.getFocusedWindow()
@@ -288,26 +318,28 @@
       read(path) {
         fs.readFile(path, (error, data) => {
           if (error != null) {
-            alert("file open error.");
-            return;
+            alert("file open error.")
+            return
           }
-          this.json = JSON.parse(data.toString());
+          this.json = JSON.parse(data.toString())
+          // eslint-disable-next-line no-console
+          console.log('json')
+
+          // eslint-disable-next-line no-console
+          console.log(this.json)
           this.height = 540
           this.width = 500
           this.initialize()
         })
       }
     },
-
   }
 </script>
 
 <style scoped>
   .item {
     display: inline-block;
-    border: 3px solid #404040;
     border-radius: 10px;
-    background-color: #333333;
   }
 
   .item:hover {

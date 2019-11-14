@@ -8,10 +8,10 @@
 
     <line-chart :chart-data="dataContents" :options="chartOptions"></line-chart>
 
-    <v-btn grey class="ml-4 mb-4" @click="showLegend = !showLegend">Legend</v-btn>
-    <v-btn grey class="ml-4 mb-4" @click="showExplain = !showExplain">Explain</v-btn>
+    <v-btn class="ml-4 mb-4" @click="showLegend = !showLegend">Legend</v-btn>
+    <v-btn class="ml-4 mb-4" @click="showExplain = !showExplain">Explain</v-btn>
 
-    <ul class="px-10 py-3 grey darken-2" v-show="showLegend">
+    <ul class="px-10 py-3" v-show="showLegend">
       <li>%user：CPUがユーザモードにあった時間の割合</li>
       <li>%nice：優先度（nice値）設定されたユーザプロセス実行によるCPU時間の割合</li>
       <li>%system：CPUがカーネルモードにあった時間の割合</li>
@@ -20,7 +20,7 @@
       <li>%idle：CPUがアイドル状態にあった時間の割合</li>
     </ul>
 
-    <p class="pa-3 grey darken-2" v-show="showExplain">
+    <p class="pa-3" v-show="showExplain">
       マルチコアの場合、上記の結果ようにCPUごとの使用率が見られます。
       当然ですが、全てのカラムの値を足すと100%になります。
       %idleの値が小さいとCPUの使用率が高いということになので、CPUがパフォーマンスのボトルネックになっている可能性があります。
@@ -50,6 +50,11 @@
     },
     mounted() {
       this.debug('Cpu Chart mounted.')
+    },
+    watch:{
+      chartOptions(){
+        this.debug('Cpu Chart Options changed.')
+      }
     },
     methods: {
       initialize: function () {
@@ -138,10 +143,10 @@
       },
       setStats() {
         this.debug("stats func getStats")
+        this.debug(this.stats)
         this.assignStats(this.stats)
       },
       assignStats(stats) {
-        this.debug(stats)
         let label = [], user = [], nice = [], system = [], iowait = [], steal = [], idle = []
         let sample_count = stats.length
         let thinning_val = Math.floor(sample_count / this.thinning)
@@ -154,7 +159,7 @@
             continue
           }
 
-          if(!(this.start < time_str && this.end > time_str)){
+          if (!(this.start < time_str && this.end > time_str)) {
             continue
           }
           label.push(time_str)
