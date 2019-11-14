@@ -168,6 +168,86 @@
               :end="times[time_range[1]]"
               ref="disk"
             />
+
+            <network-chart
+              :key=6
+              class="item"
+              :options="config"
+              :stats="stats"
+              :width="width"
+              :height="height"
+              :thinning="thinning"
+              :start="times[time_range[0]]"
+              :end="times[time_range[1]]"
+              ref="network_0"
+              :iface_no=0
+            />
+            <network-chart
+              :key=7
+              class="item"
+              :options="config"
+              :stats="stats"
+              :width="width"
+              :height="height"
+              :thinning="thinning"
+              :start="times[time_range[0]]"
+              :end="times[time_range[1]]"
+              ref="network_1"
+              :iface_no=1
+            />
+            <network-chart
+              :key=8
+              class="item"
+              :options="config"
+              :stats="stats"
+              :width="width"
+              :height="height"
+              :thinning="thinning"
+              :start="times[time_range[0]]"
+              :end="times[time_range[1]]"
+              ref="network_2"
+              :iface_no=2
+            />
+            <network-chart
+              :key=9
+              class="item"
+              :options="config"
+              :stats="stats"
+              :width="width"
+              :height="height"
+              :thinning="thinning"
+              :start="times[time_range[0]]"
+              :end="times[time_range[1]]"
+              ref="network_3"
+              :iface_no=3
+            />
+            <network-chart
+              :key=10
+              class="item"
+              :options="config"
+              :stats="stats"
+              :width="width"
+              :height="height"
+              :thinning="thinning"
+              :start="times[time_range[0]]"
+              :end="times[time_range[1]]"
+              ref="network_4"
+              :iface_no=4
+            />
+            <network-chart
+              :key=11
+              class="item"
+              :options="config"
+              :stats="stats"
+              :width="width"
+              :height="height"
+              :thinning="thinning"
+              :start="times[time_range[0]]"
+              :end="times[time_range[1]]"
+              ref="network_5"
+              :iface_no=5
+            />
+
           </draggable>
         </v-flex>
       </v-layout>
@@ -183,6 +263,7 @@
   import QueueChart from "./Metrics/QueueChart"
   import IoChart from "./Metrics/IoChart"
   import DiskChart from "./Metrics/DiskChart"
+  import NetworkChart from "./Metrics/NetworkChart"
 
   const FONT_SIZE = 10
   let FONT_COLOR = "white"
@@ -248,6 +329,7 @@
       'queue-chart': QueueChart,
       'io-chart': IoChart,
       'disk-chart': DiskChart,
+      'network-chart': NetworkChart,
       'draggable': draggable,
     },
     props: {},
@@ -282,13 +364,19 @@
 
     methods: {
       initialize: function () {
-        if(this.json !== null) {
+        if (this.json !== null) {
           this.stats = this.json.sysstat.hosts[0].statistics
           this.$refs.cpu.initialize()
           this.$refs.mem.initialize()
           this.$refs.queue.initialize()
           this.$refs.io.initialize()
           this.$refs.disk.initialize()
+          this.$refs.network_0.initialize()
+          this.$refs.network_1.initialize()
+          this.$refs.network_2.initialize()
+          this.$refs.network_3.initialize()
+          this.$refs.network_4.initialize()
+          this.$refs.network_5.initialize()
         }
       },
       close() {
