@@ -39,7 +39,7 @@
       chartOptions: null,
       showLegend: false,
       showExplain: false,
-      iface:'-',
+      iface: '-',
     }),
     props: ['options', 'stats', 'width', 'height', 'thinning', 'start', 'end', 'iface_no', 'show'],
     created() {
@@ -162,7 +162,11 @@
         let label = [], rxcmp = [], rxkB = [], rxmcst = [], rxpck = [], txcmp = [], txkB = [], txpck = []
         let sample_count = stats.length
         let thinning_val = Math.floor(sample_count / this.thinning)
-        if(!this.stats[0].network['net-dev'][this.iface_no]){
+        let key = "nw_" + this.iface_no
+        if (this.stats[0].network['net-dev'][this.iface_no] === undefined) {
+          if (this.show) {
+            this.$emit('toggle', key)
+          }
           this.iface = "No Data."
           this.fillData(label, rxcmp, rxkB, rxmcst, rxpck, txcmp, txkB, txpck)
           return

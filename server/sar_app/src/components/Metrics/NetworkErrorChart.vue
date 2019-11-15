@@ -147,7 +147,11 @@
         let label = [], coll = [], rxdrop = [], rxerr = [], rxfifo = [], rxfram = [], txcarr = [], txdrop = [], txerr = [], txfifo = []
         let sample_count = stats.length
         let thinning_val = Math.floor(sample_count / this.thinning)
+        let key = "nw_err_" + this.iface_no
         if (!this.stats[0].network['net-edev'][this.iface_no]) {
+          if (this.show) {
+            this.$emit('toggle', key)
+          }
           this.iface = "No Data."
           this.fillData(label, coll, rxdrop, rxerr, rxfifo, rxfram, txcarr, txdrop, txerr, txfifo)
           return
