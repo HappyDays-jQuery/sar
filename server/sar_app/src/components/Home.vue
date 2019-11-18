@@ -637,6 +637,7 @@
           console.log(this.json)
           this.height = 540
           this.width = 500
+          this.initialize()
         })
       }
       ,
