@@ -197,4 +197,7 @@
     margin: 15px;
     padding: 15px;
   }
+  .graph::-webkit-scrollbar{
+    display: none;
+  }
 </style>
